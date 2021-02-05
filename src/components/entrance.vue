@@ -775,22 +775,21 @@ export default {
   background-size: 100% 100%;
   .heroBox {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
     flex-wrap: wrap;
-    padding:0 20px 20px;
     box-sizing: border-box;
     flex:1;
     div {
-      width: 130px;
-      height: 150px;
+      // width: 130px;
+      // height: 150px;
       // border: 1px solid black;
+      width: 50%;
       display: flex;
       flex-direction: column;
       justify-content: space-around;
       align-items: center;
       border-radius: 10px;
-      padding: 10px;
       box-sizing: border-box;
     }
   }
