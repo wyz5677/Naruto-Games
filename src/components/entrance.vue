@@ -102,6 +102,8 @@
 </template>
 
 <script>
+import { _randomNum,_getRandomArrayElements } from "../utils/utils.js";
+
 export default {
   name: 'HelloWorld',
   data(){
@@ -116,12 +118,14 @@ export default {
         maxLan:50,
         meicinan:10,
         meimiaolan:0,
+        jilv_60_gongji:0,
+        jilv_60_fangyu:0,
         // 防御
         beingAttacked:0,
         huixue:0,
         // 每击败一个怪兽增加血量
         chengzhangxueliang:0,
-        // 前五秒增加攻击
+        // 前五次增加攻击
         fiveAddAttack:0,
         skills:['超旋光螺旋舞吼三式'],
         gongjidonghua:'skills_1.png'
@@ -276,7 +280,7 @@ export default {
         },
         {
           id:3,
-          name:'每秒回1血'
+          name:'每秒回2血'
         },
         {
           id:4,
@@ -288,12 +292,20 @@ export default {
         },
         {
           id:6,
-          name:'前5秒增加8点伤害'
+          name:'前5次普攻增加8点伤害'
         },
         {
           id:7,
           name:'每秒回能量1'
         },
+        {
+          id:8,
+          name:'60%机率攻击增加10点伤害'
+        },
+        {
+          id:9,
+          name:'60%机率抵挡10点伤害'
+        }
       ],
       heros:[
         { 
@@ -356,7 +368,7 @@ export default {
       // 升级怪兽
       this._levelMonster()
       // 随机技能选择
-      this.skillsCOPY=this._getRandomArrayElements(this.skills,4)
+      this.skillsCOPY=_getRandomArrayElements(this.skills,4)
       // 展示选择技能框
       this.showChooseSkillsBox = true
     },
@@ -378,8 +390,15 @@ export default {
 
         // 进攻进程
         this.jingongshanghai = this.jingongshanghai + this.obj1.attack
+        // 前5次攻击
         if(this.obj1.fiveAddAttack && i<=5){
           this.jingongshanghai = this.jingongshanghai + this.obj1.fiveAddAttack
+        }
+        // 60%机率攻击
+        if(this.obj1.jilv_60_gongji){
+          if(_randomNum(1,10)<=6){
+            this.jingongshanghai = this.jingongshanghai + this.obj1.jilv_60_gongji
+          }
         }
         this.obj2.life-=this.jingongshanghai
         setTimeout(()=>{
@@ -387,9 +406,19 @@ export default {
         },200)
 
 
-        // 防御进程
+        // 受伤害进程
         setTimeout(()=>{
-          this.fangyushanghai=this.jingongshanghai + this.obj2.attack
+          this.fangyushanghai=this.fangyushanghai + this.obj2.attack
+          // 60%机率抵挡
+          if(this.obj1.jilv_60_gongji){
+            if(_randomNum(1,10)<=6){
+              this.fangyushanghai = this.fangyushanghai - this.obj1.jilv_60_fangyu
+            }
+          }
+          // 受伤害不可能为负
+          if(this.fangyushanghai<=0){
+            this.fangyushanghai =0
+          }
           this.obj1.life-=this.fangyushanghai
           setTimeout(()=>{
             this.fangyushanghai=0
@@ -432,7 +461,7 @@ export default {
           setTimeout(res, 4000);
         })
         this.showfloatdonghua=true
-        // 500秒后关名字动画
+        // 500秒后关浮动动画
         await new Promise((res)=>{
           setTimeout(res, 3000);
         })
@@ -442,8 +471,7 @@ export default {
           // setTimeout(() => {
           //   this.showgongjidonghua = false
           // }, 100);
-          this.obj2.life-= Math.ceil(this.obj2.maxLife * 0.005)
-          console.log('11');
+          this.obj2.life-= Math.ceil(this.obj2.maxLife * 0.01)
           this._jieshu()
         }, 500);
       }
@@ -464,16 +492,20 @@ export default {
         this.obj1.life +=50
         this.obj1.maxLife +=50
       }else if(item.id == 3) {
-        this.obj1.huixue +=1
+        this.obj1.huixue +=2
       }else if(item.id == 4) {
-        this.obj1.attack +=1
-        this.obj1.beingAttacked +=1
+        this.obj1.attack +=2
+        this.obj1.beingAttacked +=2
       }else if(item.id == 5) {
         this.obj1.chengzhangxueliang +=10
       }else if(item.id == 6) {
         this.obj1.fiveAddAttack +=8
       }else if(item.id == 7) {
         this.obj1.meimiaolan +=1
+      }else if(item.id == 8) {
+        this.obj1.jilv_60_gongji +=10
+      }else if(item.id == 9) {
+        this.obj1.jilv_60_fangyu +=10
       }
       // 选完技能后关闭技能框
       this.showChooseSkillsBox=false
@@ -493,7 +525,7 @@ export default {
       this.obj1.gongjidonghua=this.heros[item.id-1].gongjidonghua
       this.showChooseHeroBox=false
       // 随机技能选择
-      this.skillsCOPY=this._getRandomArrayElements(this.skills,4)
+      this.skillsCOPY=_getRandomArrayElements(this.skills,4)
       // 展示选择技能框
       this.showChooseSkillsBox = true
       let m = document.getElementById('music');
@@ -502,20 +534,6 @@ export default {
     _levelMonster(){
       this.level++
       this.obj2=this.monsters[this.level-1]
-    },
-    _randomNum(minNum,maxNum){ 
-      return parseInt(Math.random()*(maxNum-minNum+1)+minNum,10); 
-    },
-    // 随机从数组中选几个元素
-    _getRandomArrayElements(arr, count) {
-      var shuffled = arr.slice(0), i = arr.length, min = i - count, temp, index;
-      while (i-- > min) {
-          index = Math.floor((i + 1) * Math.random());
-          temp = shuffled[index];
-          shuffled[index] = shuffled[i];
-          shuffled[i] = temp;
-      }
-      return shuffled.slice(min);
     },
     _jieshu(){
       if(this.obj1.life<=0){
