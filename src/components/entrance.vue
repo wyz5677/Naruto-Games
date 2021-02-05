@@ -113,7 +113,7 @@ export default {
         maxLife:100,
         rate:10,
         lan:0,
-        maxLan:10,
+        maxLan:50,
         meicinan:10,
         meimiaolan:0,
         // 防御
@@ -442,7 +442,7 @@ export default {
           // setTimeout(() => {
           //   this.showgongjidonghua = false
           // }, 100);
-          this.obj2.life-= Math.ceil(this.obj2.maxLife * 0.001)
+          this.obj2.life-= Math.ceil(this.obj2.maxLife * 0.005)
           console.log('11');
           this._jieshu()
         }, 500);
