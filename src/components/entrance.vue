@@ -50,9 +50,9 @@
             <img src="../imgs/skills/pugongdonghua.gif" alt="">
           </div>
            <!-- 技能动画 -->
-          <!-- <div class="showfangyudonghua" v-show="showfangyudonghua">
-            <img :src="require(`${obj1.gongjidonghua}`)"  alt="">
-          </div> -->
+          <div class="showfangyudonghua" v-show="showfangyudonghua">
+            <img :src="require(`../imgs/skills/${obj1.fangyudonghua}`)"  alt="">
+          </div>
            <!-- 血条 -->
           <div class="Article-blood">
             <div :style="{'height':obj1.life*100/obj1.maxLife+'%'}">
@@ -65,6 +65,7 @@
         </div>
         <!-- 属性栏目 -->
         <div class="shuxinglan">
+          <img v-if="obj1.xianrenchakela>2" src="../imgs/special/special_1.png" alt="" style="width:70px;height:30px;" @click="_usexianrenchakela()">
           <div>
             攻击：{{obj1.attack}}
           </div>
@@ -73,6 +74,9 @@
           </div>
           <div style="margin-top:10px;">
             生命：{{obj1.life}}
+          </div>
+          <div style="margin-top:10px;color:#f3c258;" v-if="obj1.xianrenchakela">
+            仙人查克拉：{{obj1.xianrenchakela}}
           </div>
         </div>
       </div>
@@ -118,6 +122,7 @@ export default {
         maxLan:50,
         meicinan:10,
         meimiaolan:0,
+        xianrenchakela:0,
         jilv_60_gongji:0,
         jilv_60_fangyu:0,
         // 防御
@@ -128,7 +133,8 @@ export default {
         // 前五次增加攻击
         fiveAddAttack:0,
         skills:['超旋光螺旋舞吼三式'],
-        gongjidonghua:'skills_1.png'
+        gongjidonghua:'skills_1.png',
+        fangyudonghua:"skills_1.png"
       },
       obj2:{
         attack:5,
@@ -324,15 +330,17 @@ export default {
         },
         { 
           id:3,
-          name:'宇智波鼬',
-          skills:['超旋光螺旋舞吼三式'],
-          skilDatail:'敬请期待.'
+          name:'沙暴的我爱罗',
+          skills:['绝对防御'],
+          skilDatail:'半血以下开启绝对防御,有几率只受一点伤害,并全伤害返回.',
+          fangyudonghua:"skills_3.gif"
         },
         {
           id:4,
-          name:'宇智波斑',
-          skills:['天照'],
-          skilDatail:'敬请期待.'
+          name:'鸣人',
+          skills:['仙法丶超大玉螺旋丸'],
+          skilDatail:'仙法丶超大玉螺旋丸:仙人查克拉越多伤害越高.',
+          gongjidonghua:"skills_4.gif"
         }
       ],
       skillsCOPY:[],
@@ -365,6 +373,7 @@ export default {
       // 初始化属性
       this.obj1.life=this.obj1.maxLife
       this.obj1.lan=0
+      this.obj1.xianrenchakela=0
       // 升级怪兽
       this._levelMonster()
       // 随机技能选择
@@ -387,6 +396,9 @@ export default {
         // this.$refs.jingongshanghai.style.top=this._randomNum(80,100)+'px'
         // this.$refs.jingongshanghai.style.left=this._randomNum(80,120)+'px'
 
+        if(this.obj1.skills.some(item=> item=='仙法丶超大玉螺旋丸' )){
+          this.obj1.xianrenchakela+=1
+        }
 
         // 进攻进程
         this.jingongshanghai = this.jingongshanghai + this.obj1.attack
@@ -410,10 +422,18 @@ export default {
         setTimeout(()=>{
           this.fangyushanghai=this.fangyushanghai + this.obj2.attack
           // 60%机率抵挡
-          if(this.obj1.jilv_60_gongji){
+          if(this.obj1.jilv_60_fangyu){
             if(_randomNum(1,10)<=6){
               this.fangyushanghai = this.fangyushanghai - this.obj1.jilv_60_fangyu
             }
+          }
+          if(this.obj1.skills.some(item=> item=='绝对防御' ) && (this.obj1.life<this.obj1.maxLife/2)){
+            this.showfangyudonghua = true
+            if(_randomNum(1,10)<=5){
+              this.fangyushanghai = 1
+              this.obj2.life-= this.obj2.attack
+            }
+            this._jieshu()
           }
           // 受伤害不可能为负
           if(this.fangyushanghai<=0){
@@ -516,13 +536,18 @@ export default {
       this.obj2.life=this.obj2.maxLife
     },
     _chooseHeros(item){
-      if(item.id==3 || item.id==4) {
-        alert('请期待')
-        return
-      }
+      // if(item.id==3 || item.id==4) {
+      //   alert('请期待')
+      //   return
+      // }
       this.obj1.skills=this.heros[item.id-1].skills
       this.obj1.id=this.heros[item.id-1].id
-      this.obj1.gongjidonghua=this.heros[item.id-1].gongjidonghua
+      if(this.heros[item.id-1].gongjidonghua){
+        this.obj1.gongjidonghua=this.heros[item.id-1].gongjidonghua
+      }
+      if(this.heros[item.id-1].fangyudonghua){
+        this.obj1.fangyudonghua=this.heros[item.id-1].fangyudonghua
+      }
       this.showChooseHeroBox=false
       // 随机技能选择
       this.skillsCOPY=_getRandomArrayElements(this.skills,4)
@@ -530,6 +555,19 @@ export default {
       this.showChooseSkillsBox = true
       let m = document.getElementById('music');
       m.play();//播放
+    },
+    _usexianrenchakela(){
+      this.showgongjidonghua=true
+      setTimeout(() => {
+        this.showgongjidonghua = false
+      }, 1000);
+      let sum = 0
+      for (let i = 0; i <= this.obj1.xianrenchakela; i++) {
+          sum += i*3;
+      }
+      this.obj2.life-=sum
+      this.obj1.xianrenchakela = 0
+      this._jieshu()
     },
     _levelMonster(){
       this.level++
@@ -654,7 +692,8 @@ export default {
   }
   .showfangyudonghua {
     position: absolute;
-    left: 0%;
+    left: 5%;
+    top:-7%;
     // transition: all 0.1s;
     // opacity: 0;
     width: 200px;
