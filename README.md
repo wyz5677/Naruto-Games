@@ -1,3 +1,10 @@
+适合初学者,
+代码注释多,
+总代码数不长.
+喜欢的求个赞和fork
+
+
+
 # my-project
 
 ## Project setup
