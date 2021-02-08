@@ -421,7 +421,7 @@ export default {
         // 受伤害进程
         setTimeout(()=>{
           this.fangyushanghai=this.fangyushanghai + this.obj2.attack
-          // 60%机率抵挡
+          this.fangyushanghai=this.fangyushanghai - this.obj1.beingAttacked
           if(this.obj1.jilv_60_fangyu){
             if(_randomNum(1,10)<=6){
               this.fangyushanghai = this.fangyushanghai - this.obj1.jilv_60_fangyu
@@ -579,7 +579,10 @@ export default {
         clearInterval(this.TIM1)
         clearInterval(this.TIM2)
         clearInterval(this.TIM3)
-        this.showgongjidonghua = false
+        setTimeout(()=>{
+          this.showgongjidonghua = false
+          this.showfangyudonghua = false
+        },800)
         alert('挂逼了')
         location.reload()
       }else if (this.obj2.life<=0){
@@ -587,7 +590,10 @@ export default {
         clearInterval(this.TIM1)
         clearInterval(this.TIM2)
         clearInterval(this.TIM3)
-        this.showgongjidonghua = false
+        setTimeout(()=>{
+          this.showgongjidonghua = false
+          this.showfangyudonghua = false
+        },800)
         alert('胜利!')
         if(this.obj1.chengzhangxueliang) {
           this.obj1.maxLife += this.obj1.chengzhangxueliang
